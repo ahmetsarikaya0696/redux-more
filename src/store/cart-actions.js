@@ -16,7 +16,10 @@ export const sendCartData = (cart) => {
         "https://react-http-6f76f-default-rtdb.europe-west1.firebasedatabase.app/cart.json",
         {
           method: "PUT",
-          body: JSON.stringify(cart),
+          body: JSON.stringify({
+            items: cart.items,
+            totalAmount: cart.totalAmount,
+          }),
         }
       );
 
@@ -48,14 +51,6 @@ export const sendCartData = (cart) => {
 
 export const fetchCartData = () => {
   return async (dispatch) => {
-    dispatch(
-      uiActions.showNotification({
-        status: "pending",
-        title: "Getting...",
-        message: "Getting cart data!",
-      })
-    );
-
     const fetchData = async () => {
       const response = await fetch(
         "https://react-http-6f76f-default-rtdb.europe-west1.firebasedatabase.app/cart.json"
@@ -72,16 +67,14 @@ export const fetchCartData = () => {
 
     try {
       const cartData = await fetchData();
-      
-      dispatch(cartActions.updateCart(cartData));
 
       dispatch(
-        uiActions.showNotification({
-          status: "success",
-          title: "Success!",
-          message: "Cart data fetched successfully!",
+        cartActions.updateCart({
+          items: cartData.items || [],
+          totalAmount: cartData.totalAmount,
         })
       );
+      
     } catch (error) {
       dispatch(
         uiActions.showNotification({
